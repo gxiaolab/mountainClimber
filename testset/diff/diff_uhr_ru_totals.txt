@@ -1,0 +1,2 @@
+Condition	Total genes	Total genes with > 3 segments	Total genes with change points: left end	Total genes with change points: right end	Total genes with all prxlCov != 0: left end	Total genes with all prxlCov != 0: right end
+uhr	391	360	115	85	115	85

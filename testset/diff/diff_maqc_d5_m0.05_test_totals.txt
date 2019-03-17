@@ -1,0 +1,2 @@
+total cp	total cp with distal and proximal segment reads/bp avg across samples >= 5.0 and >= 0.0 in >= 1 condition respectively	total cp strictly decreasing from proximal to distal	p <= 0.05	p <= 0.05 & abs(RUa - RUb) >= 0.05
+1013	178	176	82	51

@@ -1,0 +1,10 @@
+python ../src/diff_segmentReadCounts.py -i ./diff/diff_segments.bed -p ./bedgraph/SRR950078.bedgraph -c uhr -o ./diff/diff
+python ../src/diff_segmentReadCounts.py -i ./diff/diff_segments.bed -p ./bedgraph/SRR950079.bedgraph -c brain -o ./diff/diff
+python ../src/diff_segmentReadCounts.py -i ./diff/diff_segments.bed -p ./bedgraph/SRR950080.bedgraph -c uhr -o ./diff/diff
+python ../src/diff_segmentReadCounts.py -i ./diff/diff_segments.bed -p ./bedgraph/SRR950081.bedgraph -c brain -o ./diff/diff
+python ../src/diff_segmentReadCounts.py -i ./diff/diff_segments.bed -p ./bedgraph/SRR950082.bedgraph -c uhr -o ./diff/diff
+python ../src/diff_segmentReadCounts.py -i ./diff/diff_segments.bed -p ./bedgraph/SRR950083.bedgraph -c brain -o ./diff/diff
+python ../src/diff_segmentReadCounts.py -i ./diff/diff_segments.bed -p ./bedgraph/SRR950084.bedgraph -c uhr -o ./diff/diff
+python ../src/diff_segmentReadCounts.py -i ./diff/diff_segments.bed -p ./bedgraph/SRR950085.bedgraph -c brain -o ./diff/diff
+python ../src/diff_segmentReadCounts.py -i ./diff/diff_segments.bed -p ./bedgraph/SRR950086.bedgraph -c uhr -o ./diff/diff
+python ../src/diff_segmentReadCounts.py -i ./diff/diff_segments.bed -p ./bedgraph/SRR950087.bedgraph -c brain -o ./diff/diff
