@@ -1154,10 +1154,6 @@ def main(argv):
 										jxn_distances = [abs(int(peak_ind) - int(x)) for x in jxn_list]
 										exon_start_end_list = [map(int, exon.split(':')) for exon in exon_list]
 										exon_flag_list = [1 if estart <= int(peak_ind) < eend else 0 for estart, eend in exon_start_end_list]
-										print 'estart and end', estart, eend
-										print 'exon_flag_list', [(estart + new_start, eend + new_start) for estart, eend in exon_start_end_list]
-										print [j + new_start for j in jxn_list]
-										print jxn_distances
 
 										if any(x <= args.juncdist for x in jxn_distances):
 											label = 'Junction'
