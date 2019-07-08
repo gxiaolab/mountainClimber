@@ -123,7 +123,7 @@ def ks_test(vert_sum_array, make_plots, out_prefix):
 		x2 = [0, float(xmax) / float(1000)]
 		y2 = [y0, ymax]
 
-		out_plot = out_prefix + '_crs.pdf'
+		out_plot = out_prefix.replace(':', '_') + '_crs.pdf'
 		pdf = PdfPages(out_plot)
 		fig = pyplot.figure(figsize=(3, 3))
 		pyplot.plot(x1, y1, color='k')
@@ -483,7 +483,7 @@ def main(argv):
 
 	group = parser.add_argument_group('Output')
 	group.add_argument('-o', '--output', dest='output', type=str, metavar='',
-					   help='Output prefix. Bed file of change points has name field = CPlabel:gene:TUstart:TUend:inferred_strand:winsize:peak_thresh:peak_min_dist:segment1coverage:segment2coverage:segment1sd:segment2sd:exon_coverage. Score = log2(fold change).')
+					   help='Output prefix. Bed file of change points has name field = CPlabel:gene:TUstart:TUend:inferred_strand:winsize:segment_coverage:average_exon_coverage. Score = log2(fold change).')
 	group.add_argument('-p', '--plot', dest='plot', action='store_true',
 					   help='Plot the cumulative read sum (CRS), the distance from CRS to line y=ax, and the coverage with predicted change points.')
 	group.add_argument('-v', '--verbose', dest='verbose', action='store_true',
@@ -873,7 +873,7 @@ def main(argv):
 													if len(temp_cov_array) > 0:
 														temp_vert_sum_array, temp_vert_array = crs(temp_cov_array)
 														if temp_vert_sum_array[0] != 'NA' and len(temp_vert_sum_array) > 0 and max(temp_vert_sum_array) > 0:
-															temp_ksp = ks_test(temp_vert_sum_array, args.plot, os.path.join(plot_dir, geneid) + '_temp1')
+															temp_ksp = ks_test(temp_vert_sum_array, 0, os.path.join(plot_dir, geneid) + '_temp1')
 															if temp_ksp < args.test_thresh:
 																temp_line_dist_array, temp_line_dist_array_denoise = get_linedist(temp_vert_sum_array, denoise_winsize)
 																if np.unique(temp_line_dist_array_denoise).size != 1:
@@ -888,7 +888,7 @@ def main(argv):
 													if len(temp_cov_array) > 0:
 														temp_vert_sum_array, temp_vert_array = crs(temp_cov_array)
 														if temp_vert_sum_array[0] != 'NA' and len(temp_vert_sum_array) > 0 and max(temp_vert_sum_array) > 0:
-															temp_ksp = ks_test(temp_vert_sum_array, args.plot, os.path.join(plot_dir, geneid) + '_temp2')
+															temp_ksp = ks_test(temp_vert_sum_array, 0, os.path.join(plot_dir, geneid) + '_temp2')
 															if temp_ksp < args.test_thresh:
 																temp_line_dist_array, temp_line_dist_array_denoise = get_linedist(temp_vert_sum_array, denoise_winsize)
 																if np.unique(temp_line_dist_array_denoise).size != 1:
@@ -1135,6 +1135,7 @@ def main(argv):
 											del fc_list_opt[-1]
 
 								# label change points
+								label_list = []
 								for i, peak_ind in enumerate(peak_inds_ttest_opt):
 									if i == 0:
 										if strand_inferred == '+':
@@ -1178,6 +1179,7 @@ def main(argv):
 												label = 'Exon'
 									else:
 										label = 'Exon'
+									label_list.append(label)
 
 									if int(peak_ind) > cov_array.size - 1:
 										print '\ngene:', geneid, start, end, chrom, strand, new_start, new_end, cov_array.size, str(datetime.now().time())
@@ -1224,9 +1226,9 @@ def main(argv):
 							if args.verbose:
 								print '- plotting'
 							# plot coverage without change points
-							x = np.linspace(0, len(cov_list) - 1, len(cov_list)) / 1000
-							y = np.asarray(cov_list)
-							out_plot = os.path.join(plot_dir, geneid + '_cov.pdf')
+							x = np.linspace(0, len(cov_array) - 1, len(cov_array)) / 1000
+							y = cov_array
+							out_plot = os.path.join(plot_dir, geneid.replace(':', '_') + '_cov.pdf')
 							pdf = PdfPages(out_plot)
 							fig = pyplot.figure(figsize=(3, 3))
 							pyplot.plot(x, y, color='k')
@@ -1237,25 +1239,25 @@ def main(argv):
 							pdf.close()
 							pyplot.close(fig)
 
-							if len(jxn_list) > 0:
-								# plot coverage without change points, excluding introns
-								x = np.linspace(0, len(temp_cov_list) - 1, len(temp_cov_list)) / 1000
-								y = np.asarray(temp_cov_list)
-								out_plot = os.path.join(plot_dir, geneid + '_cov_noIntrons.pdf')
-								pdf = PdfPages(out_plot)
-								fig = pyplot.figure(figsize=(3, 3))
-								pyplot.plot(x, y, color='k')
-								pyplot.xlabel('Position (kb)')
-								pyplot.ylabel('Coverage')
-								pyplot.gcf().subplots_adjust(bottom=0.3, left=0.3)
-								pdf.savefig()
-								pdf.close()
-								pyplot.close(fig)
+							# if len(jxn_list) > 0:
+							# 	# plot coverage without change points, excluding introns
+							# 	x = np.linspace(0, len(temp_cov_list) - 1, len(temp_cov_list)) / 1000
+							# 	y = np.asarray(temp_cov_list)
+							# 	out_plot = os.path.join(plot_dir, geneid + '_cov_noIntrons.pdf')
+							# 	pdf = PdfPages(out_plot)
+							# 	fig = pyplot.figure(figsize=(3, 3))
+							# 	pyplot.plot(x, y, color='k')
+							# 	pyplot.xlabel('Position (kb)')
+							# 	pyplot.ylabel('Coverage')
+							# 	pyplot.gcf().subplots_adjust(bottom=0.3, left=0.3)
+							# 	pdf.savefig()
+							# 	pdf.close()
+							# 	pyplot.close(fig)
 
 							# plot coverage (black) + + change points (red)
-							x = np.linspace(0, len(cov_list) - 1, len(cov_list)) / 1000
-							y = np.asarray(cov_list)
-							out_plot = os.path.join(plot_dir, geneid + '_cov_segs.pdf')
+							x = np.linspace(0, len(cov_array) - 1, len(cov_array)) / 1000
+							y = np.asarray(cov_array)
+							out_plot = os.path.join(plot_dir, geneid.replace(':', '_') + '_cov_segs.pdf')
 							pdf = PdfPages(out_plot)
 							fig = pyplot.figure(figsize=(3, 3))
 							pyplot.plot(x, y, color='k')
@@ -1271,13 +1273,56 @@ def main(argv):
 							pdf.close()
 							pyplot.close(fig)
 
+							# plot coverage (black) + + change points (red): left
+							junction_indexes = [i for i, x in enumerate(label_list) if x == 'Junction']
+							if len(junction_indexes) != 0 and junction_indexes[0] != 0:
+								x = np.linspace(0, len(cov_array) - 1, len(cov_array)) / 1000
+								y = np.asarray(cov_array)
+								out_plot = os.path.join(plot_dir, geneid.replace(':', '_') + '_cov_segs_left.pdf')
+								pdf = PdfPages(out_plot)
+								fig = pyplot.figure(figsize=(3, 3))
+								pyplot.plot(x, y, color='k')
+								if len(peak_inds_ttest_opt) > 0:
+									for seg in peak_inds_ttest_opt:
+										seg = float(seg) / float(1000)
+										pyplot.axvline(x=seg, color='r')
+								pyplot.xlim(0, float(peak_inds_ttest_opt[junction_indexes[0]]) / float(1000))
+								pyplot.title('Segmentation: n = ' + str(len(peak_inds_ttest_opt)))
+								pyplot.xlabel('Position (kb)')
+								pyplot.ylabel('Coverage')
+								pyplot.gcf().subplots_adjust(bottom=0.3, left=0.3)
+								pdf.savefig()
+								pdf.close()
+								pyplot.close(fig)
+
+							# plot coverage (black) + + change points (red): right
+							if len(junction_indexes) != 0 and junction_indexes[-1] != len(label_list) - 1:
+								x = np.linspace(0, len(cov_array) - 1, len(cov_array)) / 1000
+								y = np.asarray(cov_array)
+								out_plot = os.path.join(plot_dir, geneid.replace(':', '_') + '_cov_segs_right.pdf')
+								pdf = PdfPages(out_plot)
+								fig = pyplot.figure(figsize=(3, 3))
+								pyplot.plot(x, y, color='k')
+								if len(peak_inds_ttest_opt) > 0:
+									for seg in peak_inds_ttest_opt:
+										seg = float(seg) / float(1000)
+										pyplot.axvline(x=seg, color='r')
+								pyplot.xlim(float(peak_inds_ttest_opt[junction_indexes[-1]]) / float(1000), float(len(cov_array)) / float(1000))
+								pyplot.title('Segmentation: n = ' + str(len(peak_inds_ttest_opt)))
+								pyplot.xlabel('Position (kb)')
+								pyplot.ylabel('Coverage')
+								pyplot.gcf().subplots_adjust(bottom=0.3, left=0.3)
+								pdf.savefig()
+								pdf.close()
+								pyplot.close(fig)
+
 							if ksp < args.test_thresh:
 								x = np.linspace(0, len(line_dist_array_denoise) - 1, len(line_dist_array_denoise)) / 1000
 								y1 = line_dist_array2_denoise
 								y2 = line_dist_array2
 								y3 = line_dist_array_denoise
 								y4 = line_dist_array
-								out_plot = os.path.join(plot_dir, geneid + '_crsToLine.pdf')
+								out_plot = os.path.join(plot_dir, geneid.replace(':', '_') + '_crsToLine.pdf')
 								pdf = PdfPages(out_plot)
 								fig = pyplot.figure(figsize=(3, 3))
 								pyplot.plot(x, y1, color='b')
@@ -1297,7 +1342,7 @@ def main(argv):
 								y2 = line_dist_array2
 								y3 = line_dist_array_denoise
 								y4 = line_dist_array
-								out_plot = os.path.join(plot_dir, geneid + '_crsToLine_segs.pdf')
+								out_plot = os.path.join(plot_dir, geneid.replace(':', '_') + '_crsToLine_segs.pdf')
 								pdf = PdfPages(out_plot)
 								fig = pyplot.figure(figsize=(3, 3))
 								pyplot.plot(x, y1, color='b')

@@ -1,10 +1,10 @@
 # mountainClimber
 
 
-**Citation: Cass AA, Xiao X. "The landscape of alternative transcription start and polyadenylation sites in human tissues." JOURNAL, 2019**
+**Citation: Cass AA and Xiao X. (2019). mountainClimber identifies alternative transcription start and polyadenylation sites in RNA-Seq. Cell Systems**
 
 
-mountainClimber is a tool built for identifying alternative transcription start sites (ATS) and alternative polyadenylation sites (APA) from RNA-Seq by finding significant change points in read coverage. It is made up of three main steps, which can be used in isolation:
+mountainClimber is a tool built for identifying alternative transcription start sites (ATS) and alternative polyadenylation sites (APA) from RNA-Seq by finding significant change points in read coverage. It is made up of three main steps which can be used in isolation:
 1. mountainClimberTU: Call transcription units (TUs) de novo from RNA-Seq in each individual sample.
 2. mountainClimberCP: Identify change points throughout the entire TU of each individual sample. The premise of this approach is to identify significant change points in the the cumulative read sum (CRS) distribution as a function of position. It identifies the following change point types: DistalTSS, TandemTSS, DistalPolyA, TandemAPA, Junction, Exon, and Intron.
 3. mountainClimberRU: Calculate the relative usage of each TSS and poly(A) site in each TU.
@@ -40,34 +40,36 @@ In this overview, we describe the usage of each of the three steps. Below, we pr
 
 
 ### mountainClimberTU
-mountainClimberTU calls de novo transcription units. In general, we recommend including introns when calling TUs by explicitly incorporating split reads with argument --junc. However, this is optional. To retrieve junction reads from your bam files, use get_junction_counts.py (described below).
+Call transcription units (TUs) de novo from RNA-Seq. In general, we recommend including introns when calling TUs by explicitly incorporating split reads with argument --junc. However, this is optional. To retrieve junction reads from your bam files, use get_junction_counts.py (described below).
 ```
-usage: mountainClimberTU.py [-h] -b  [-j] [-g] [-c] -s  [-w] [-p] [-n] -o
+usage: mountainClimberTU.py [-h] [-b] [-j] [-g] [-c] -s {1,-1,0} [-w] [-p]
+                            [-n] [-o]
 
 optional arguments:
-  -h, --help           show this help message and exit
+  -h, --help            show this help message and exit
 
 Input:
-  -b , --bedgraph      Bedgraph file. Can be .gz compressed. (default: None)
-  -j , --junc          Junction .bedgraph or .bed file. If file suffix is
-                       .bed, will convert to bedgraph. (default: None)
-  -g , --genome        Input chromosome sizes. (default: None)
+  -b , --bedgraph       Bedgraph file. Can be .gz compressed. (default: None)
+  -j , --junc           Junction .bedgraph or .bed file. If file suffix is
+                        .bed, will convert to bedgraph. (default: None)
+  -g , --genome         Input chromosome sizes. (default: None)
 
 Parameters:
-  -c , --minjxncount   Minimum junction read count. (default: 2)
-  -s , --strand        Strand of bedgraph file. (default: None)
-  -w , --window_size   Window size. (default: 1000)
-  -p , --min_percent   Minimum percentage of the window covered. (default:
-                       1.0)
-  -n , --min_reads     Minimum number of reads per window. (default: 10)
+  -c , --minjxncount    Minimum junction read count. (default: 2)
+  -s {1,-1,0}, --strand {1,-1,0}
+                        Strand of bedgraph file. (default: None)
+  -w , --window_size    Window size. (default: 1000)
+  -p , --min_percent    Minimum percentage of the window covered. (default:
+                        1.0)
+  -n , --min_reads      Minimum number of reads per window. (default: 10)
 
 Output:
-  -o , --output        Output bed filename. (default: None)
+  -o , --output         Output bed filename. (default: None)
 ```
 
 
 ### mountainClimberCP
-Change point (CP) identification in each sample.
+Identify change points throughout each TU using the cumulative read sum (CRS) in each sample.
 ```
 usage: mountainClimberCP.py [-h] [-i] [-m] [-g] [-j] [-x] [-a] [-d] [-w] [-t]
                             [-l] [-e] [-s] [-f] [-u] [-n] [-z] [-o] [-p] [-v]
@@ -118,9 +120,8 @@ Parameters:
 Output:
   -o , --output         Output prefix. Bed file of change points has name
                         field = CPlabel:gene:TUstart:TUend:inferred_strand:win
-                        size:peak_thresh:peak_min_dist:segment1coverage:segmen
-                        t2coverage:segment1sd:segment2sd:exon_coverage. Score
-                        = log2(fold change). (default: None)
+                        size:segment_coverage:average_exon_coverage. Score =
+                        log2(fold change). (default: None)
   -p, --plot            Plot the cumulative read sum (CRS), the distance from
                         CRS to line y=ax, and the coverage with predicted
                         change points. (default: False)
@@ -131,8 +132,7 @@ Output:
 ### mountainClimberRU
 Calculate the relative usage of each TSS and poly(A) site in each TU. Run this separately for each condition.
 ```
-usage: mountainClimberRU.py [-h] [-i [[...]]] [-c CONDITION] [-n] [-o OUTPUT]
-                            [-v]
+usage: mountainClimberRU.py [-h] [-i] [-n] [-o OUTPUT] [-v]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -154,14 +154,14 @@ output:
 
 
 ## Differential ATS and APA
-While mountainClimber was built for analyzing one single sample, we additionally provide the scripts we built for identifying differential ATS and APA across two conditions given the output of mountainClimberCP. However, if you are analyzing a large number of samples, it may be preferred to run each step separately and parallelized over all samples. Each step of is described below.
+While mountainClimber was built for analyzing one single sample, we additionally provide the scripts we built for identifying differential ATS and APA across two conditions given the output of mountainClimberCP. However, if you are analyzing a large number of samples, it may be preferred to run each step separately and parallelized over all samples. Each step is described below.
 
 
 ### diff_cluster
 Cluster change points first across replicates within each condition, and then across conditions.
 ```
-usage: diff_cluster.py [-h] [-i [[...]]] [-c [[...]]] [-n [[...]]] [-e]
-                     [-f] [-d] [-m] [-l] [-s] [-o] [-v]
+usage: diff_cluster.py [-h] [-i [[...]]] [-c [[...]]] [-n [[...]]] [-e] [-f]
+                       [-d] [-m] [-l] [-s] [-o] [-v]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -193,10 +193,16 @@ Parameters:
   -s, --ss_flag         Flag: RNA-Seq is strand-specific. (default: False)
 
 output:
-  -o , --output         Output file of clustered segments. name field = CPlabe
-                        l:condition:gene:TUstart:TUend:inferred_strand:winsize
-                        :min_point_clustered:max_point_clustered:cluster_stdev
-                        :n_points_clustered. (default: None)
+  -o , --output         Output prefix. Output files include
+                        _cluster_totals.txt, _segments.bed, _cp.bed, and one
+                        _cp.bed file for each condition. _cp.bed name field =
+                        label_prioritized;condition_labels:gene:TUstart:TUend:
+                        chrom:strand:dbscan_epsilon:min_clustered_change_point
+                        :max_clustered_change_point:cluster_standard_deviation
+                        :total_clusters. _segments.bed name field = label_prio
+                        ritized_cp1;condition_labels_cp1|label_prioritized_cp2
+                        ;condition_labels_cp2:gene:TUstart:TUend:chrom:strand:
+                        dbscan_epsilon. (default: None)
   -v, --verbose         Print progress details. (default: False)
 ```
 
@@ -204,13 +210,16 @@ output:
 ### diff_segmentReadCounts
 Calculate the average reads/bp for each segment after clustering.
 ```
-usage: diff_segmentReadCounts.py [-h] [-i] [-p] [-m] [-c] [-s] [-o]
+usage: diff_segmentReadCounts.py [-h] [-i] [-p [[...]]] [-m [[...]]]
+                                 [-c [[...]]] [-o]
+
+Calculate the average reads/bp for each segment after clustering.
 
 optional arguments:
-  -h, --help         show this help message and exit
+  -h, --help            show this help message and exit
 
 Input:
-  -i , --segments       _segments.bed from clusterCPs (default: None)
+  -i , --segments       _segments.bed output from clusterCPs (default: None)
   -p [ [ ...]], --bgplus [ [ ...]]
                         List of space-delimited bedgraphs: non-strand-specific
                         or plus strand. (default: None)
@@ -222,7 +231,8 @@ Input:
                         --bgplus file (default: None)
 
 Output:
-  -o , --output         Output prefix. (default: None)
+  -o , --output         Output prefix. Outputs one _readCounts.bed file per
+                        sample. (default: None)
 ```
 
 
@@ -252,7 +262,13 @@ Parameters:
                         calculate relative end usage (default: 3)
 
 Output:
-  -o , --output         Output prefix. (default: None)
+  -o , --output         Output prefix. Outputs one _cp.bed and _segments.bed
+                        file for each condition. _cp.bed name field = CPlabel:
+                        gene:TUstart:TUend:chrom:strand:coverage_mean:coverage
+                        _variance:total_samples:CPindex. _segments.bed name
+                        field = CPlabel_cp1|CPlabel_cp2:gene:TUstart:TUend:chr
+                        om:strand:coverage_mean:coverage_variance:total_sample
+                        s:CPindex. (default: None)
   -v, --verbose         Print progress. (default: False)
 ```
 
@@ -260,8 +276,8 @@ Output:
 ### diff_test
 Test for differential ATS and APA sites between two conditions.
 ```
-usage: diff_test.py [-h] [-i [[...]]] [-r [[...]]] [-ci [[...]]]
-                  [-cr [[...]]] [-d] [-p] [-t] [-m] [-o] [-v]
+usage: diff_test.py [-h] [-i [[...]]] [-r [[...]]] [-ci [[...]]] [-cr [[...]]]
+                    [-d] [-p] [-t] [-m] [-o] [-k] [-v]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -293,12 +309,13 @@ Parameters:
 
 Output:
   -o , --output         Output prefix. 3 output files: (1) bed file of all
-                        tested change points, (2) bed file of differential
-                        change points, (3) summary of total differential
-                        change points. Bed name field = CPlabel;testType;CPind
-                        ex;gene:TUstart:TUend:proximalSegment:distalSegment:RU
-                        difference:RUconditionA:RUconditionB:pBH (default:
-                        None)
+                        tested change points _cp_allTested.bed, (2) bed file
+                        of differential change points _cp_diff.bed, (3)
+                        summary of total differential change points
+                        _test_totals.txt. Bed name field = CPlabel;
+                        test_type;CPindex;gene:TUstart:TUend:proxim
+                        al_segment:distal_segment:RU_difference:RU_conditionA:
+                        RU_conditionB:BH_pvalue (default: None)
   -k, --keep            Keep intermediate output files. (default: False)
   -v, --verbose         Print progress. (default: False)
 ```
@@ -367,21 +384,18 @@ Example usage:
 python mountainClimberTU.py -b ./bedgraph/SRR950078.bedgraph -j ./junctions/SRR950078_jxn.bed -s 0 -g hg19.chr1.genome -o mountainClimberTU/SRR950078_tu.bed
 ```
 
-After identifying transcription units in each sample, merge all sample TUs and annotate them:
+Annotate transcription units and add them to .gtf file
 ```
-usage: merge_tus.py [-h] -i [INFILES [INFILES ...]] -g REFGTF -s {y,n} -o
-                    OUTPUT
+usage: merge_tus.py [-h] -i [[...]] -g  -s  -o
 
 optional arguments:
   -h, --help            show this help message and exit
-  -i [INFILES [INFILES ...]], --infiles [INFILES [INFILES ...]]
-                        Input TU bed files from mountainClimberTU output, space-
-                        delimited (default: None)
-  -g REFGTF, --refgtf REFGTF
-                        Reference gtf file (default: None)
-  -s {y,n}, --ss {y,n}  strand specific? (y or no) (default: None)
-  -o OUTPUT, --output OUTPUT
-                        Output prefix (default: None)
+  -i [ [ ...]], --infiles [ [ ...]]
+                        Input TU bed files from mountainClimberTU output,
+                        space-delimited (default: None)
+  -g , --refgtf         Reference gtf file (default: None)
+  -s , --ss             Strand specific [y, n] (default: None)
+  -o , --output         Output prefix (default: None)
 ```
 
 Example usage:

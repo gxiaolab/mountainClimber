@@ -204,7 +204,7 @@ def main(argv):
 
 	group = parser.add_argument_group('Output')
 	group.add_argument('-o', '--output', dest='output', type=str, metavar='',
-		help='Output prefix. 3 output files: (1) bed file of all tested change points, (2) bed file of differential change points, (3) summary of total differential change points. Bed name field = CPlabel;testType;CPindex;gene:TUstart:TUend:proximalSegment:distalSegment:RUdifference:RUconditionA:RUconditionB:pBH')
+		help='Output prefix. 3 output files: (1) bed file of all tested change points _cp_allTested.bed, (2) bed file of differential change points _cp_diff.bed, (3) summary of total differential change points _test_totals.txt. Bed name field = CPlabel;test_type;CPindex;gene:TUstart:TUend:proximal_segment:distal_segment:RU_difference:RU_conditionA:RU_conditionB:BH_pvalue')
 	group.add_argument('-k', '--keep', dest='keep', action='store_true',
 		help='Keep intermediate output files.')
 	group.add_argument('-v', '--verbose', dest='verbose', action='store_true',

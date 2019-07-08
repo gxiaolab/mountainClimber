@@ -148,7 +148,7 @@ def main(argv):
 
     group = parser.add_argument_group('Output')
     group.add_argument('-o', '--output', dest='output', type=str, metavar='',
-                       help='Output prefix.')
+                       help='Output prefix. Outputs one _cp.bed and _segments.bed file for each condition. _cp.bed name field = CPlabel:gene:TUstart:TUend:chrom:strand:coverage_mean:coverage_variance:total_samples:CPindex. _segments.bed name field = CPlabel_cp1|CPlabel_cp2:gene:TUstart:TUend:chrom:strand:coverage_mean:coverage_variance:total_samples:CPindex.')
     group.add_argument('-v', '--verbose', dest='verbose', action='store_true',
                        help='Print progress.')
     args = parser.parse_args()

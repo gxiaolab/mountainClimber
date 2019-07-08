@@ -301,7 +301,7 @@ def main(argv):
 
 	group = parser.add_argument_group('output')
 	group.add_argument('-o', '--output', dest='output', type=str, metavar = '',
-		help='Output file of clustered segments. name field = CPlabel:condition:gene:TUstart:TUend:inferred_strand:winsize:min_point_clustered:max_point_clustered:cluster_stdev:n_points_clustered.')
+		help='Output prefix. Output files include _cluster_totals.txt, _segments.bed, _cp.bed, and one _cp.bed file for each condition. _cp.bed name field = label_prioritized;condition_labels:gene:TUstart:TUend:chrom:strand:dbscan_epsilon:min_clustered_change_point:max_clustered_change_point:cluster_standard_deviation:total_clusters. _segments.bed name field = label_prioritized_cp1;condition_labels_cp1|label_prioritized_cp2;condition_labels_cp2:gene:TUstart:TUend:chrom:strand:dbscan_epsilon.')
 	group.add_argument('-v', '--verbose', dest='verbose', action='store_true',
 		help='Print progress details.')
 	args = parser.parse_args()
